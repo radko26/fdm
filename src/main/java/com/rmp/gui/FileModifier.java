@@ -6,21 +6,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class FileModifier {
 
-	public void modify(String newDateString, File file) throws IOException {
+	public void modify(Date newDate, File file) throws IOException {
 		BasicFileAttributeView attrs = Files
 				.getFileAttributeView(Paths.get(file.getAbsolutePath()),
 						BasicFileAttributeView.class);
 
 		try {
-			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-			Date newDate = format.parse(newDateString);
+			
 			Date oldCreationDate = new Date(attrs.readAttributes()
 					.creationTime().toMillis());
 			Calendar oldDate = Calendar.getInstance();
@@ -38,9 +35,7 @@ public class FileModifier {
 			attrs.setTimes(modifiedCreationDate, modifiedCreationDate,
 					modifiedCreationDate);
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
+			throw e;
 		}
 	}
 

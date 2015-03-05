@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -21,6 +24,7 @@ public class Panel extends JPanel {
 	private JTextField dateField = new JTextField();
 	private FileModifier attrModifier = new FileModifier();
 	private File lastDir;
+	private JLabel errorLabel = new JLabel("");
 
 	public Panel() {
 		chooser = new JFileChooser();
@@ -31,6 +35,8 @@ public class Panel extends JPanel {
 
 		launchChooserButton.addActionListener(new ClickAction());
 		add(launchChooserButton);
+		
+		add(errorLabel);
 
 	}
 
@@ -50,23 +56,32 @@ public class Panel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			chooser.setMultiSelectionEnabled(true);
-			chooser.setDialogTitle("ChangeDateAttribute");
-			if (lastDir != null) {
-				chooser.setCurrentDirectory(lastDir);
-			}
-
-			int result = chooser.showDialog(getPanel(), "Change");
-			if (result == JFileChooser.APPROVE_OPTION) {
-				for (File a : chooser.getSelectedFiles()) {
-					System.out.println(a.getName());
-					try {
-						attrModifier.modify(dateField.getText(), a);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+			errorLabel.setText("");
+			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+			Date newDate;
+			try {
+				newDate = format.parse(dateField.getText());
+				chooser.setMultiSelectionEnabled(true);
+				chooser.setDialogTitle("ChangeDateAttribute");
+				if (lastDir != null) {
+					chooser.setCurrentDirectory(lastDir);
 				}
-				lastDir = chooser.getCurrentDirectory();
+
+				int result = chooser.showDialog(getPanel(), "Change");
+				if (result == JFileChooser.APPROVE_OPTION) {
+					for (File a : chooser.getSelectedFiles()) {
+						System.out.println(a.getName());
+						try {
+							attrModifier.modify(newDate, a);
+						} catch (IOException e1) {
+							errorLabel.setText("Ooops, something went wrong.");
+						}
+					}
+					lastDir = chooser.getCurrentDirectory();
+				}
+
+			} catch (ParseException e2) {
+				errorLabel.setText("Bad date format!");
 			}
 
 		}
