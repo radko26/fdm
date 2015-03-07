@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,7 +37,7 @@ public class Panel extends JPanel {
 
 		launchChooserButton.addActionListener(new ClickAction());
 		add(launchChooserButton);
-		
+
 		add(errorLabel);
 
 	}
@@ -70,11 +72,29 @@ public class Panel extends JPanel {
 				int result = chooser.showDialog(getPanel(), "Change");
 				if (result == JFileChooser.APPROVE_OPTION) {
 					for (File a : chooser.getSelectedFiles()) {
-						System.out.println(a.getName());
+
 						try {
-							attrModifier.modify(newDate, a);
+							FileInputStream fileIn = new FileInputStream(a);
+							File replacedFile = new File(a.getAbsolutePath()
+									+ "new");
+
+							FileOutputStream replaceFileOut = new FileOutputStream(
+									replacedFile);
+
+							byte[] buffer = new byte[1024];
+							int len;
+							while ((len = fileIn.read(buffer)) > 0) {
+								replaceFileOut.write(buffer, 0, len);
+							}
+							fileIn.close();
+							replaceFileOut.close();
+
+							replacedFile = new File(a.getAbsolutePath());
+
+							attrModifier.modify(newDate, replacedFile);
 						} catch (IOException e1) {
 							errorLabel.setText("Ooops, something went wrong.");
+							e1.printStackTrace();
 						}
 					}
 					lastDir = chooser.getCurrentDirectory();
