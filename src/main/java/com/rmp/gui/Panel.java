@@ -88,10 +88,14 @@ public class Panel extends JPanel {
 							}
 							fileIn.close();
 							replaceFileOut.close();
-
-							replacedFile = new File(a.getAbsolutePath());
+							
+							a.delete();
+							
 
 							attrModifier.modify(newDate, replacedFile);
+							
+							replacedFile.renameTo(a);
+							
 						} catch (IOException e1) {
 							errorLabel.setText("Ooops, something went wrong.");
 							e1.printStackTrace();
