@@ -12,7 +12,7 @@ public class GUI extends JFrame {
 	private Panel panel = new Panel();
 
 	public GUI() {
-		super("FDM");// Change creation date
+		super("FDM");
 		setBounds(CENTER_POINT.x - panel.getWidth() / 2,
 				CENTER_POINT.y - panel.getHeight() / 2, panel.getWidth(),
 				panel.getHeight());

@@ -17,7 +17,7 @@ public class FileModifier {
 						BasicFileAttributeView.class);
 
 		try {
-			
+
 			Date oldCreationDate = new Date(attrs.readAttributes()
 					.creationTime().toMillis());
 			Calendar oldDate = Calendar.getInstance();

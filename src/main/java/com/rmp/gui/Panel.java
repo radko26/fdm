@@ -3,14 +3,14 @@ package main.java.com.rmp.gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -56,8 +56,11 @@ public class Panel extends JPanel {
 
 	private class ClickAction implements ActionListener {
 
+		private ImageCopyEngine engine = new ImageCopyEngine();
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
+
 			errorLabel.setText("");
 			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 			Date newDate;
@@ -74,31 +77,33 @@ public class Panel extends JPanel {
 					for (File a : chooser.getSelectedFiles()) {
 
 						try {
-							FileInputStream fileIn = new FileInputStream(a);
-							File replacedFile = new File(a.getAbsolutePath()
-									+ "new");
-
-							FileOutputStream replaceFileOut = new FileOutputStream(
-									replacedFile);
-
-							byte[] buffer = new byte[1024];
-							int len;
-							while ((len = fileIn.read(buffer)) > 0) {
-								replaceFileOut.write(buffer, 0, len);
+							String dateTokens[] = dateField.getText()
+									.toString().split("\\.");
+							StringBuilder newName = new StringBuilder();
+							for (String token : dateTokens) {
+								newName.append(token);
 							}
-							fileIn.close();
-							replaceFileOut.close();
-							
-							a.delete();
-							
+							newName.append(a.getName().substring(8));
 
-							attrModifier.modify(newDate, replacedFile);
-							
-							replacedFile.renameTo(a);
-							
+							File outputDir = new File(a.getParent() + "/output");
+							if (!outputDir.exists()) {
+								outputDir.mkdir();
+							}
+
+							BufferedImage initialImage = ImageIO.read(a);
+							BufferedImage copyImage = engine.copy(initialImage);
+
+							File newCopyFile = new File(outputDir.getPath()
+									+ "/" + newName.toString());
+
+							newCopyFile = engine.saveToFile(copyImage,
+									newCopyFile);
+
+							attrModifier.modify(newDate, newCopyFile);
+
 						} catch (IOException e1) {
 							errorLabel.setText("Ooops, something went wrong.");
-							e1.printStackTrace();
+							System.out.println(e1.getMessage());
 						}
 					}
 					lastDir = chooser.getCurrentDirectory();
@@ -109,7 +114,6 @@ public class Panel extends JPanel {
 			}
 
 		}
-
 	}
 
 }
